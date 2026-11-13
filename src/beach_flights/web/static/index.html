@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beach Flights — LGW &amp; LHR 1-Night Deal Tracker</title>
+  <style>
+    :root {
+      --bg: #f4f8fb;
+      --surface: #ffffff;
+      --surface-alt: #f0f6fa;
+      --border: #d9e5ee;
+      --text: #0f2537;
+      --muted: #5a7388;
+      --ocean: #0284c7;
+      --ocean-dark: #0369a1;
+      --teal: #0d9488;
+      --warm-bg: #e0f7fa;
+      --warm-text: #0f766e;
+      --cold-bg: #eef2ff;
+      --cold-text: #4338ca;
+      --gold-bg: #fef3c7;
+      --gold-text: #92400e;
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+      --red-bg: #fee2e2;
+      --red-text: #991b1b;
+      --shadow: 0 4px 16px rgba(15, 37, 55, 0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      background: linear-gradient(135deg, #0b2d48 0%, #0284c7 100%);
+      color: #fff;
+      padding: 20px 24px;
+      box-shadow: 0 2px 12px rgba(11, 45, 72, 0.2);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    h1 { margin: 0; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { margin: 4px 0 0; font-size: 0.9rem; opacity: 0.9; }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: #fbbf24; color: #0f2537; }
+    .btn-primary:hover { background: #f59e0b; }
+    .btn-secondary { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #e3eff7; }
+    .btn-link { background: var(--ocean); color: #fff; padding: 7px 12px; font-size: 0.84rem; }
+    .btn-link:hover { background: var(--ocean-dark); }
+
+    main { max-width: 1200px; margin: 22px auto 60px; padding: 0 20px; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
+    .kpi-val { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
+    .kpi-sub { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+
+    .filters {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .field label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+
+    .status-banner {
+      display: none;
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      color: #075985;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .status-banner.visible { display: block; }
+
+    .deals-list { display: flex; flex-direction: column; gap: 14px; }
+    .deal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .deal-card.cold {
+      opacity: 0.85;
+      border-style: dashed;
+      border-color: #c7d2fe;
+    }
+    .deal-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .dest-title { font-size: 1.18rem; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .pill-warm { background: var(--warm-bg); color: var(--warm-text); }
+    .pill-cold { background: var(--cold-bg); color: var(--cold-text); }
+    .pill-openjaw { background: var(--gold-bg); color: var(--gold-text); }
+    .pill-down { background: var(--green-bg); color: var(--green-text); }
+    .pill-up { background: var(--red-bg); color: var(--red-text); }
+
+    .price-box { text-align: right; }
+    .price-main { font-size: 1.45rem; font-weight: 800; color: var(--text); }
+    .price-rate { font-size: 0.84rem; color: var(--teal); font-weight: 700; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: minmax(190px, 1.2fr) minmax(140px, 1fr) minmax(190px, 1.2fr);
+      gap: 12px;
+      align-items: center;
+      background: var(--surface-alt);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    @media (max-width: 760px) {
+      .timeline { grid-template-columns: 1fr; }
+      .price-box { text-align: left; }
+    }
+    .leg-time { font-size: 1.02rem; font-weight: 700; }
+    .leg-meta { font-size: 0.82rem; color: var(--muted); }
+    .beach-bar {
+      text-align: center;
+      background: linear-gradient(90deg, #bae6fd 0%, #99f6e4 100%);
+      color: #0b3b49;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+
+    .deal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .alts-drawer {
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      display: none;
+    }
+    .alts-drawer.open { display: block; }
+    .alt-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: #f8fbfd;
+      margin-bottom: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 45, 72, 0.52);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 14px;
+      max-width: 560px;
+      width: 100%;
+      padding: 20px 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin: 0 0 12px; font-size: 1.15rem; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>🏖️ Beach Flights — LGW &amp; LHR 1-Night Maximizer</h1>
+        <p class="subtitle">Early-out, late-back weekend flights ranked by £ per beach hour &amp; live sea temperature (17.0°C Brighton baseline)</p>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn btn-primary" onclick="openScanModal()">⚡ Run Live Scan</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="scanBanner" class="status-banner"></div>
+
+    <section class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Best Value Deal</div>
+        <div class="kpi-val" id="kpiBestValue">—</div>
+        <div class="kpi-sub" id="kpiBestValueSub">Run a scan to load deals</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Warmest Swimmable Sea</div>
+        <div class="kpi-val" id="kpiWarmest">—</div>
+        <div class="kpi-sub" id="kpiWarmestSub">Live / forecast SST</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Max Beach Time</div>
+        <div class="kpi-val" id="kpiLongest">—</div>
+        <div class="kpi-sub" id="kpiLongestSub">On a 1-night weekend</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Active Scan</div>
+        <div class="kpi-val" id="kpiScan">—</div>
+        <div class="kpi-sub" id="kpiScanSub">SQLite local tracker</div>
+      </div>
+    </section>
+
+    <section class="filters">
+      <div class="field">
+        <label for="fSort">Rank By</label>
+        <select id="fSort" onchange="loadDeals()">
+          <option value="value">Best £ / Beach Hr</option>
+          <option value="price">Cheapest Total £</option>
+          <option value="hours">Most Beach Hours</option>
+          <option value="temp">Warmest Sea °C</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fMinSea">Min Sea Temp (°C)</label>
+        <input id="fMinSea" type="number" step="0.5" value="17.0" onchange="loadDeals()" />
+      </div>
+      <div class="field">
+        <label for="fMinHours">Min Beach Hours</label>
+        <input id="fMinHours" type="number" step="1" value="28" onchange="loadDeals()" />
+      </div>
+      <div class="field">
+        <label for="fMaxPrice">Max Price (£)</label>
+        <input id="fMaxPrice" type="number" step="5" placeholder="Any" onchange="loadDeals()" />
+      </div>
+      <div class="field">
+        <label for="fOrigin">London Airport</label>
+        <select id="fOrigin" onchange="loadDeals()">
+          <option value="">LGW + LHR</option>
+          <option value="LGW">LGW Only</option>
+          <option value="LHR">LHR Only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fDest">Destination</label>
+        <select id="fDest" onchange="loadDeals()">
+          <option value="">All Beaches</option>
+        </select>
+      </div>
+      <label class="toggle-field">
+        <input id="fOpenJaw" type="checkbox" checked onchange="loadDeals()" />
+        Allow LGW/LHR Mix
+      </label>
+      <label class="toggle-field">
+        <input id="fIncludeCold" type="checkbox" onchange="loadDeals()" />
+        Show Cold (&lt; min °C)
+      </label>
+    </section>
+
+    <section id="dealsContainer" class="deals-list"></section>
+  </main>
+
+  <!-- Run Scan Modal -->
+  <div id="scanModal" class="modal-backdrop">
+    <div class="modal">
+      <h2>⚡ Run Live Weekend Flight + Sea Temp Scan</h2>
+      <div class="modal-grid">
+        <div class="field">
+          <label for="sPreset">Destination Preset</label>
+          <select id="sPreset">
+            <option value="winter-sun">Winter Sun (Canaries, AGP, ALC, FAO, LCA, MLA)</option>
+            <option value="west-med">West Med (PMI, IBZ, AGP, ALC, NCE, FAO)</option>
+            <option value="east-med">East Med (Greece, Croatia, Cyprus, Turkey)</option>
+            <option value="all">All 27 Beaches</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sDests">Or Specific IATAs (comma-sep)</label>
+          <input id="sDests" type="text" placeholder="e.g. TFS,LPA,AGP" />
+        </div>
+        <div class="field">
+          <label for="sWeeks">Weeks Ahead</label>
+          <input id="sWeeks" type="number" min="1" max="12" value="3" />
+        </div>
+        <div class="field">
+          <label for="sMinSea">Min Sea Temp (°C)</label>
+          <input id="sMinSea" type="number" step="0.5" value="17.0" />
+        </div>
+        <div class="field">
+          <label for="sMinHours">Min Beach Hours</label>
+          <input id="sMinHours" type="number" step="1" value="28" />
+        </div>
+        <div class="field">
+          <label for="sMaxPrice">Max Price (£)</label>
+          <input id="sMaxPrice" type="number" step="10" value="250" />
+        </div>
+      </div>
+      <label class="toggle-field" style="margin-top:8px;">
+        <input id="sIncludeCold" type="checkbox" />
+        Save &amp; include destinations colder than min sea temp
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeScanModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitScan()">Start Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price History Modal -->
+  <div id="historyModal" class="modal-backdrop">
+    <div class="modal">
+      <h2 id="historyTitle">Price History</h2>
+      <div id="historyBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let scanPollTimer = null;
+
+    function fmtTime(isoStr) {
+      const d = new Date(isoStr);
+      // isoStr already has local offset; extract HH:MM directly from string to display airport-local time!
+      const match = isoStr.match(/T(\d{2}:\d{2})/);
+      return match ? match[1] : d.toTimeString().slice(0, 5);
+    }
+
+    function fmtDay(isoDate) {
+      const d = new Date(isoDate + "T12:00:00Z");
+      return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    }
+
+    async function loadDestinations() {
+      const res = await fetch("/api/destinations");
+      const items = await res.json();
+      const sel = document.getElementById("fDest");
+      items.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.iata;
+        opt.textContent = `${d.name} (${d.iata})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function loadDeals() {
+      const params = new URLSearchParams({
+        sort_by: document.getElementById("fSort").value,
+        min_sea_temp_c: document.getElementById("fMinSea").value || "17.0",
+        min_beach_hours: document.getElementById("fMinHours").value || "0",
+        allow_open_jaw: document.getElementById("fOpenJaw").checked ? "true" : "false",
+        include_cold: document.getElementById("fIncludeCold").checked ? "true" : "false",
+      });
+      const maxPrice = document.getElementById("fMaxPrice").value;
+      if (maxPrice) params.set("max_price_gbp", maxPrice);
+      const origin = document.getElementById("fOrigin").value;
+      if (origin) params.set("origin", origin);
+      const dest = document.getElementById("fDest").value;
+      if (dest) params.set("destination", dest);
+
+      const res = await fetch(`/api/deals?${params.toString()}`);
+      const data = await res.json();
+      renderKPIs(data);
+      renderDeals(data.deals || []);
+    }
+
+    function renderKPIs(data) {
+      const deals = data.deals || [];
+      document.getElementById("kpiScan").textContent = data.scan_id ? `Scan #${data.scan_id}` : "No Scans";
+      document.getElementById("kpiScanSub").textContent = `${deals.length} grouped beach deals`;
+
+      if (!deals.length) {
+        document.getElementById("kpiBestValue").textContent = "—";
+        document.getElementById("kpiBestValueSub").textContent = "No qualifying deals";
+        document.getElementById("kpiWarmest").textContent = "—";
+        document.getElementById("kpiLongest").textContent = "—";
+        return;
+      }
+
+      const swimmable = deals.filter(d => d.best.is_swimmable);
+      const pool = swimmable.length ? swimmable : deals;
+      const byValue = [...pool].sort((a, b) => a.best.gbp_per_beach_hour - b.best.gbp_per_beach_hour)[0].best;
+      document.getElementById("kpiBestValue").textContent = `£${byValue.total_price_gbp.toFixed(0)} · £${byValue.gbp_per_beach_hour.toFixed(2)}/hr`;
+      document.getElementById("kpiBestValueSub").textContent = `${byValue.destination_name} (${fmtDay(byValue.weekend_date)})`;
+
+      const withTemp = pool.filter(d => d.best.sea_temp_c !== null);
+      if (withTemp.length) {
+        const warmest = [...withTemp].sort((a, b) => b.best.sea_temp_c - a.best.sea_temp_c)[0].best;
+        document.getElementById("kpiWarmest").textContent = `${warmest.sea_temp_c.toFixed(1)}°C`;
+        document.getElementById("kpiWarmestSub").textContent = `${warmest.destination_name} (${warmest.sea_temp_source})`;
+      } else {
+        document.getElementById("kpiWarmest").textContent = "n/a";
+      }
+
+      const longest = [...pool].sort((a, b) => b.best.beach_hours - a.best.beach_hours)[0].best;
+      document.getElementById("kpiLongest").textContent = `${longest.beach_hours.toFixed(1)} hrs`;
+      document.getElementById("kpiLongestSub").textContent = `${longest.destination_name} (£${longest.total_price_gbp.toFixed(0)})`;
+    }
+
+    function renderDeals(deals) {
+      const container = document.getElementById("dealsContainer");
+      if (!deals.length) {
+        container.innerHTML = `<div class="empty-state"><h3>No matching beach deals yet</h3><p>Click <strong>Run Live Scan</strong> above or run <code>beach-flights scan</code> in your terminal.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = deals.map((deal, idx) => {
+        const b = deal.best;
+        const seaPill = b.sea_temp_c !== null
+          ? `<span class="pill ${b.is_swimmable ? "pill-warm" : "pill-cold"}">${b.is_swimmable ? "🌊" : "🥶"} ${b.sea_temp_c.toFixed(1)}°C (${b.sea_temp_source})</span>`
+          : `<span class="pill pill-cold">Sea temp n/a</span>`;
+
+        const openJawPill = b.is_open_jaw
+          ? `<span class="pill pill-openjaw">Open-jaw ${b.outbound.origin}→${b.inbound.destination}</span>`
+          : "";
+
+        let deltaPill = "";
+        if (deal.is_all_time_low) {
+          deltaPill = `<span class="pill pill-down">All-Time Low!</span>`;
+        } else if (deal.price_delta_gbp !== null && deal.price_delta_gbp < 0) {
+          deltaPill = `<span class="pill pill-down">Down £${Math.abs(deal.price_delta_gbp).toFixed(0)}</span>`;
+        } else if (deal.price_delta_gbp !== null && deal.price_delta_gbp > 0) {
+          deltaPill = `<span class="pill pill-up">+£${deal.price_delta_gbp.toFixed(0)}</span>`;
+        }
+
+        const altsHtml = deal.alternatives.length
+          ? `<div id="alts-${idx}" class="alts-drawer">${deal.alternatives.map(a => `
+              <div class="alt-row">
+                <span><strong>${a.outbound.origin} ${fmtTime(a.outbound.departure_dt)}</strong> → ${fmtTime(a.outbound.arrival_dt)} (${a.outbound.airline}) &nbsp;|&nbsp; ${fmtTime(a.inbound.departure_dt)} → <strong>${a.inbound.destination} ${fmtTime(a.inbound.arrival_dt)}</strong> (${a.inbound.airline})</span>
+                <span><strong>${a.beach_hours.toFixed(1)}h</strong> · <strong>£${a.total_price_gbp.toFixed(0)}</strong> (£${a.gbp_per_beach_hour.toFixed(2)}/hr)</span>
+              </div>`).join("")}</div>`
+          : "";
+
+        return `
+          <article class="deal-card ${b.is_swimmable ? "" : "cold"}">
+            <div class="deal-top">
+              <div class="dest-title">
+                <span>${b.destination_name} (${b.destination})</span>
+                <span style="font-size:0.9rem; font-weight:500; color:var(--muted);">${fmtDay(b.weekend_date)} → ${fmtDay(b.return_date)}</span>
+                ${seaPill}
+                ${openJawPill}
+                ${deltaPill}
+              </div>
+              <div class="price-box">
+                <div class="price-main">£${b.total_price_gbp.toFixed(0)}</div>
+                <div class="price-rate">£${b.gbp_per_beach_hour.toFixed(2)} / beach hr</div>
+              </div>
+            </div>
+
+            <div class="timeline">
+              <div>
+                <div class="leg-time">${b.outbound.origin} ${fmtTime(b.outbound.departure_dt)} → ${b.destination} ${fmtTime(b.outbound.arrival_dt)}</div>
+                <div class="leg-meta">${b.outbound.airline} · ${b.outbound.flight_number} · ${b.outbound.duration_minutes}m non-stop</div>
+              </div>
+              <div class="beach-bar">☀️ ${b.beach_hours.toFixed(1)}h on the beach</div>
+              <div>
+                <div class="leg-time">${b.destination} ${fmtTime(b.inbound.departure_dt)} → ${b.inbound.destination} ${fmtTime(b.inbound.arrival_dt)}</div>
+                <div class="leg-meta">${b.inbound.airline} · ${b.inbound.flight_number} · ${b.inbound.duration_minutes}m non-stop</div>
+              </div>
+            </div>
+
+            <div class="deal-actions">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                ${deal.alternatives.length ? `<button class="btn btn-secondary" onclick="toggleAlts(${idx})">Show ${deal.alternatives.length} Alternative Times</button>` : ""}
+                <button class="btn btn-secondary" onclick="openHistory('${b.destination}', '${b.weekend_date}', '${b.destination_name}')">📈 Price History</button>
+              </div>
+              ${b.booking_url ? `<a class="btn btn-link" href="${b.booking_url}" target="_blank" rel="noopener">Open in Google Flights ↗</a>` : ""}
+            </div>
+            ${altsHtml}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function toggleAlts(idx) {
+      document.getElementById(`alts-${idx}`).classList.toggle("open");
+    }
+
+    function openScanModal() { document.getElementById("scanModal").classList.add("open"); }
+    function closeScanModal() { document.getElementById("scanModal").classList.remove("open"); }
+
+    async function submitScan() {
+      const destRaw = document.getElementById("sDests").value.trim();
+      const body = {
+        preset: document.getElementById("sPreset").value,
+        destinations: destRaw ? destRaw.split(",").map(s => s.trim().toUpperCase()).filter(Boolean) : [],
+        weeks: parseInt(document.getElementById("sWeeks").value || "3", 10),
+        min_sea_temp_c: parseFloat(document.getElementById("sMinSea").value || "17.0"),
+        min_beach_hours: parseFloat(document.getElementById("sMinHours").value || "28"),
+        max_price_gbp: parseFloat(document.getElementById("sMaxPrice").value || "250"),
+        include_cold: document.getElementById("sIncludeCold").checked,
+      };
+      closeScanModal();
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.detail || "Could not start scan");
+        return;
+      }
+      pollScanStatus();
+    }
+
+    function pollScanStatus() {
+      if (scanPollTimer) clearInterval(scanPollTimer);
+      const banner = document.getElementById("scanBanner");
+      banner.classList.add("visible");
+      scanPollTimer = setInterval(async () => {
+        const res = await fetch("/api/scan/status");
+        const st = await res.json();
+        banner.textContent = st.last_message || "Scanning...";
+        if (!st.running) {
+          clearInterval(scanPollTimer);
+          scanPollTimer = null;
+          await loadDeals();
+        }
+      }, 1500);
+    }
+
+    async function openHistory(dest, wk, name) {
+      document.getElementById("historyTitle").textContent = `Price History: ${name} (${dest}) · ${fmtDay(wk)}`;
+      const res = await fetch(`/api/history?destination=${dest}&weekend_date=${wk}`);
+      const data = await res.json();
+      const rows = data.history || [];
+      const body = document.getElementById("historyBody");
+      if (!rows.length) {
+        body.innerHTML = "<p>No historical snapshots yet.</p>";
+      } else {
+        body.innerHTML = rows.map(r => `
+          <div class="alt-row">
+            <span>Scan #${r.scan_id} (${String(r.created_at).slice(0, 16).replace("T", " ")})</span>
+            <span><strong>£${Number(r.best_price_gbp).toFixed(0)}</strong> · £${Number(r.best_gbp_per_hour).toFixed(2)}/hr · Sea ${r.sea_temp_c !== null ? Number(r.sea_temp_c).toFixed(1) + "°C" : "n/a"}</span>
+          </div>
+        `).join("");
+      }
+      document.getElementById("historyModal").classList.add("open");
+    }
+    function closeHistoryModal() { document.getElementById("historyModal").classList.remove("open"); }
+
+    loadDestinations().then(loadDeals);
+  </script>
+</body>
+</html>
