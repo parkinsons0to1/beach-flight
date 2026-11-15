@@ -96,12 +96,12 @@ class ScanConfig(BaseModel):
     )
     outbound_dep_start: time = Field(default_factory=lambda: time(5, 0))
     outbound_dep_end: time = Field(default_factory=lambda: time(10, 30))
-    outbound_arr_latest: time | None = Field(default_factory=lambda: time(14, 0))
-    inbound_dep_start: time = Field(default_factory=lambda: time(18, 0))
+    outbound_arr_latest: time | None = Field(default_factory=lambda: time(16, 45))
+    inbound_dep_start: time = Field(default_factory=lambda: time(16, 15))
     inbound_dep_end: time = Field(default_factory=lambda: time(23, 30))
-    min_beach_hours: float = 28.0
+    min_beach_hours: float = 24.0
     min_sea_temp_c: float = 17.0
-    max_price_gbp: float = 250.0
+    max_price_gbp: float = 300.0
     include_cold: bool = False
     skip_cold: bool = False
     check_round_trips: bool = True

@@ -50,6 +50,27 @@ def _attach_tz(dt: datetime, airport_iata: str) -> datetime:
     return dt.replace(tzinfo=ZoneInfo(get_airport_timezone(airport_iata)))
 
 
+_EXTRA_AIRLINE_NAMES: dict[str, str] = {
+    "W9": "Wizz Air UK",
+    "W6": "Wizz Air",
+    "W4": "Wizz Air Malta",
+    "LS": "Jet2.com",
+    "BY": "TUI Airways",
+    "TOM": "TUI Airways",
+}
+
+
+def _resolve_airline_name(airline: object, flight_number: str) -> str:
+    if airline is not None:
+        return airline.value if hasattr(airline, "value") else str(airline)
+    prefix = "".join(ch for ch in flight_number[:3].upper() if ch.isalnum())
+    for length in (3, 2):
+        code = prefix[:length]
+        if code in _EXTRA_AIRLINE_NAMES:
+            return _EXTRA_AIRLINE_NAMES[code]
+    return prefix[:2] if len(prefix) >= 2 else "Unknown Airline"
+
+
 def _map_result_to_leg(
     result: FlightResult,
     override_price: float | None = None,
@@ -66,7 +87,7 @@ def _map_result_to_leg(
     arr_iata = leg.arrival_airport.name
     dep_dt = _attach_tz(leg.departure_datetime, dep_iata)
     arr_dt = _attach_tz(leg.arrival_datetime, arr_iata)
-    airline_name = leg.airline.value if hasattr(leg.airline, "value") else str(leg.airline)
+    airline_name = _resolve_airline_name(leg.airline, leg.flight_number)
     price = float(override_price if override_price is not None else result.price)
 
     return FlightLeg(

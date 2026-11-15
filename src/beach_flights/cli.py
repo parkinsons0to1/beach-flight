@@ -157,17 +157,17 @@ def scan(
     ),
     out_start: str = typer.Option("05:00", help="Earliest outbound departure HH:MM."),
     out_end: str = typer.Option("10:30", help="Latest outbound departure HH:MM."),
-    arr_latest: str = typer.Option("14:00", help="Latest outbound local arrival HH:MM."),
-    in_start: str = typer.Option("18:00", help="Earliest inbound departure HH:MM."),
+    arr_latest: str = typer.Option("16:45", help="Latest outbound local arrival HH:MM."),
+    in_start: str = typer.Option("16:15", help="Earliest inbound departure HH:MM."),
     in_end: str = typer.Option("23:30", help="Latest inbound departure HH:MM."),
-    min_hours: float = typer.Option(28.0, help="Minimum beach hours on the ground."),
+    min_hours: float = typer.Option(24.0, help="Minimum beach hours on the ground."),
     min_sea_temp: float = typer.Option(
         17.0, help="Minimum sea temp °C (17.0 = Brighton peak baseline)."
     ),
     include_cold: bool = typer.Option(
         False, help="Include destinations colder than --min-sea-temp."
     ),
-    max_price: float = typer.Option(250.0, help="Maximum total round-trip GBP price."),
+    max_price: float = typer.Option(300.0, help="Maximum total round-trip GBP price."),
     sort_by: str = typer.Option("value", "--sort", help="Sort by: value, price, hours, temp."),
     provider: str = typer.Option("fli", help="Flight backend: fli or serpapi."),
     round_trips: bool = typer.Option(
@@ -238,7 +238,7 @@ def scan(
 
 @app.command()
 def best(
-    min_hours: float = typer.Option(28.0, help="Minimum beach hours."),
+    min_hours: float = typer.Option(24.0, help="Minimum beach hours."),
     min_sea_temp: float = typer.Option(17.0, help="Minimum sea temp °C."),
     include_cold: bool = typer.Option(False, help="Include deals below min sea temp."),
     max_price: float | None = typer.Option(None, help="Maximum total GBP price."),

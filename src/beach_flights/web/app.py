@@ -27,14 +27,14 @@ class TriggerScanRequest(BaseModel):
         default_factory=lambda: ["sat-sun"]
     )
     allow_open_jaw: bool = True
-    min_beach_hours: float = 28.0
+    min_beach_hours: float = 24.0
     min_sea_temp_c: float = 17.0
     include_cold: bool = False
-    max_price_gbp: float = 250.0
+    max_price_gbp: float = 300.0
     outbound_dep_start: str = "05:00"
     outbound_dep_end: str = "10:30"
-    outbound_arr_latest: str = "14:00"
-    inbound_dep_start: str = "18:00"
+    outbound_arr_latest: str = "16:45"
+    inbound_dep_start: str = "16:15"
     inbound_dep_end: str = "23:30"
     check_round_trips: bool = True
 
@@ -77,7 +77,7 @@ def create_app(
         scan_id: int | None = None,
         min_sea_temp_c: float = 17.0,
         include_cold: bool = False,
-        min_beach_hours: float = 28.0,
+        min_beach_hours: float = 24.0,
         max_price_gbp: float | None = None,
         allow_open_jaw: bool = True,
         origin: str | None = None,

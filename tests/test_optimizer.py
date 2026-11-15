@@ -245,3 +245,52 @@ def test_cold_13c_70gbp_38h_never_beats_warm_18c_80gbp_36h() -> None:
     assert combined[0].is_swimmable is True
     assert combined[1].destination == "NCE"
     assert combined[1].is_swimmable is False
+
+
+def test_red_sea_utc_plus_2_trip_qualifies_under_defaults() -> None:
+    cairo_tz = ZoneInfo("Africa/Cairo")
+    cfg = ScanConfig()  # Default windows should support 5h+ UTC+2 Red Sea flights
+    out_leg = _leg(
+        "LGW",
+        "HRG",
+        datetime(2026, 12, 12, 9, 5, tzinfo=LONDON_TZ),
+        datetime(2026, 12, 12, 16, 30, tzinfo=cairo_tz),
+        176.0,
+        flight_no="EZY8055",
+    )
+    in_leg = _leg(
+        "HRG",
+        "LGW",
+        datetime(2026, 12, 13, 20, 30, tzinfo=cairo_tz),
+        datetime(2026, 12, 14, 0, 30, tzinfo=LONDON_TZ),
+        56.0,
+        flight_no="EZY8056",
+    )
+    trips = pair_and_score_trips(
+        weekend_date=date(2026, 12, 12),
+        return_date=date(2026, 12, 13),
+        dest_info=DESTINATIONS["HRG"],
+        outbound_legs=[out_leg],
+        inbound_legs=[in_leg],
+        round_trip_offers=None,
+        sea_condition=SeaCondition(
+            destination="HRG", target_date=date(2026, 12, 12), sea_temp_c=24.8, source="live"
+        ),
+        config=cfg,
+    )
+    assert len(trips) == 1
+    assert trips[0].beach_hours == 28.0
+    assert trips[0].total_price_gbp == 232.0
+    assert trips[0].is_swimmable is True
+
+
+def test_destination_catalog_airports_and_timezones_valid() -> None:
+    from fli.models import Airport
+
+    for code in ("FUE", "AGA", "FNC", "SSH", "HRG", "NBE"):
+        assert code in DESTINATIONS
+        assert "winter-sun" in DESTINATIONS[code].presets
+
+    for code, info in DESTINATIONS.items():
+        assert Airport[code].name == code
+        assert ZoneInfo(info.timezone) is not None

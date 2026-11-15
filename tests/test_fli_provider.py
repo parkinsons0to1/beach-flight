@@ -47,6 +47,38 @@ def test_fli_provider_maps_and_attaches_timezones() -> None:
     assert "google.com/travel/flights" in (leg.booking_url or "")
 
 
+class FakeUnknownAirlineClient:
+    def search(self, filters, top_n=5, currency=None, language=None, country=None):
+        leg = FliLeg.model_construct(
+            airline=None,
+            flight_number="W95771",
+            departure_airport=Airport.LGW,
+            arrival_airport=Airport.HRG,
+            departure_datetime=datetime(2026, 12, 12, 9, 5),
+            arrival_datetime=datetime(2026, 12, 12, 16, 30),
+            duration=325,
+        )
+        return [
+            FlightResult(
+                legs=[leg],
+                price=112.0,
+                duration=325,
+                stops=0,
+            )
+        ]
+
+
+def test_fli_provider_resolves_unknown_airline_w9() -> None:
+    provider = FliProvider(
+        search_client=FakeUnknownAirlineClient(), min_delay_s=0.0, max_delay_s=0.0
+    )
+    legs = provider.search_one_way(["LGW"], ["HRG"], date(2026, 12, 12))
+    assert len(legs) == 1
+    assert legs[0].airline == "Wizz Air UK"
+    assert legs[0].flight_number == "W95771"
+    assert legs[0].destination == "HRG"
+
+
 @pytest.mark.live
 def test_fli_provider_live_smoke() -> None:
     provider = FliProvider()

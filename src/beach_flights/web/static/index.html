@@ -328,7 +328,7 @@
       </div>
       <div class="field">
         <label for="fMinHours">Min Beach Hours</label>
-        <input id="fMinHours" type="number" step="1" value="28" onchange="loadDeals()" />
+        <input id="fMinHours" type="number" step="1" value="24" onchange="loadDeals()" />
       </div>
       <div class="field">
         <label for="fMaxPrice">Max Price (£)</label>
@@ -369,15 +369,15 @@
         <div class="field">
           <label for="sPreset">Destination Preset</label>
           <select id="sPreset">
-            <option value="winter-sun">Winter Sun (Canaries, AGP, ALC, FAO, LCA, MLA)</option>
-            <option value="west-med">West Med (PMI, IBZ, AGP, ALC, NCE, FAO)</option>
+            <option value="winter-sun">Winter Sun (Canaries, Red Sea, Morocco, Madeira, Med)</option>
+            <option value="west-med">West Med (PMI, IBZ, AGP, ALC, NCE, FAO, FNC)</option>
             <option value="east-med">East Med (Greece, Croatia, Cyprus, Turkey)</option>
-            <option value="all">All 27 Beaches</option>
+            <option value="all">All 33 Beaches</option>
           </select>
         </div>
         <div class="field">
           <label for="sDests">Or Specific IATAs (comma-sep)</label>
-          <input id="sDests" type="text" placeholder="e.g. TFS,LPA,AGP" />
+          <input id="sDests" type="text" placeholder="e.g. TFS,LPA,SSH,AGA" />
         </div>
         <div class="field">
           <label for="sWeeks">Weeks Ahead</label>
@@ -389,11 +389,11 @@
         </div>
         <div class="field">
           <label for="sMinHours">Min Beach Hours</label>
-          <input id="sMinHours" type="number" step="1" value="28" />
+          <input id="sMinHours" type="number" step="1" value="24" />
         </div>
         <div class="field">
           <label for="sMaxPrice">Max Price (£)</label>
-          <input id="sMaxPrice" type="number" step="10" value="250" />
+          <input id="sMaxPrice" type="number" step="10" value="300" />
         </div>
       </div>
       <label class="toggle-field" style="margin-top:8px;">
@@ -588,8 +588,8 @@
         destinations: destRaw ? destRaw.split(",").map(s => s.trim().toUpperCase()).filter(Boolean) : [],
         weeks: parseInt(document.getElementById("sWeeks").value || "3", 10),
         min_sea_temp_c: parseFloat(document.getElementById("sMinSea").value || "17.0"),
-        min_beach_hours: parseFloat(document.getElementById("sMinHours").value || "28"),
-        max_price_gbp: parseFloat(document.getElementById("sMaxPrice").value || "250"),
+        min_beach_hours: parseFloat(document.getElementById("sMinHours").value || "24"),
+        max_price_gbp: parseFloat(document.getElementById("sMaxPrice").value || "300"),
         include_cold: document.getElementById("sIncludeCold").checked,
       };
       closeScanModal();
